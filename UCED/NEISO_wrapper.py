@@ -49,8 +49,6 @@ def sim(days):
             
             for i in K:
                 instance.HorizonDemand[z,i] = instance.SimDemand[z,(day-1)*24+i]
-                instance.HorizonWind[z,i] = instance.SimWind[z,(day-1)*24+i]
-                instance.HorizonSolar[z,i] = instance.SimSolar[z,(day-1)*24+i]
                 instance.HorizonMustRun[z,i] = instance.SimMustRun[z,(day-1)*24+i]
         
         for d in range(1,D+1):

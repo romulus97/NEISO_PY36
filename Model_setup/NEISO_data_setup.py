@@ -128,7 +128,7 @@ def setup(year):
         f.write(';\n\n')
         
         # HQ imports
-        f.write('set HQ_IMports_VT :=\n')
+        f.write('set HQ_Imports_VT :=\n')
         # pull relevant generators
         for gen in range(0,len(df_gen)):
             if df_gen.loc[gen,'typ'] == 'imports' and df_gen.loc[gen,'zone'] == 'HQVT_I':
@@ -177,16 +177,7 @@ def setup(year):
                 unit_name = unit_name.replace(' ','_')
                 f.write(unit_name + ' ')
         f.write(';\n\n')        
-    
-        # Pumped Storage
-        f.write('set PSH :=\n')
-        # pull relevant generators
-        for gen in range(0,len(df_gen)):
-            if df_gen.loc[gen,'typ'] == 'psh':
-                unit_name = df_gen.loc[gen,'name']
-                unit_name = unit_name.replace(' ','_')
-                f.write(unit_name + ' ')
-        f.write(';\n\n')      
+     
         
         # Slack
         f.write('set Slack :=\n')

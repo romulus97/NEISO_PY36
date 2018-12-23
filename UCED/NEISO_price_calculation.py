@@ -14,11 +14,11 @@ import numpy as np
 df_mwh1 = pd.read_csv('NEISO/mwh_1.csv',header=0)
 df_mwh2 = pd.read_csv('NEISO/mwh_2.csv',header=0)
 df_mwh3 = pd.read_csv('NEISO/mwh_3.csv',header=0)
-df_gen = pd.read_csv('../Model_setup/NEISO_data_file/generators.csv',header=0)
+df_gen = pd.read_excel('../Model_setup/NEISO_data_file/generators.xlsx',header=0)
 
 last_hour = df_mwh1['Time'].iloc[-1]
 
-zonal_prices = np.zeros((last_hour,4))
+zonal_prices = np.zeros((last_hour,8))
 
 zones = ['CT','ME','NH','NEMA','RI','SEMA','VT','WCMA']
 
@@ -59,7 +59,7 @@ for z in zones:
 no_hours = last_hour
 no_days = int(no_hours/24)
 
-daily_prices = np.zeros((no_days,4))
+daily_prices = np.zeros((no_days,8))
 
 for i in range(0,no_days):
 
@@ -78,39 +78,39 @@ daily = pd.DataFrame(daily_prices)
 daily.columns = zones
 daily.to_excel('NEISO/sim_daily_prices.xlsx')
 
-#########################################################
-#            Weight by zone and bias correct
-#########################################################
-
-#simulated prices
-df_prices = pd.read_csv('NEISO/prices_2010_2011.csv',header=0)
-num_days = int(len(df_prices)/24)
-
-#regression
-X = df_prices.loc[:,:'WCMA']
-y = df_prices.loc[:,'ICE']
-reg = linear_model.LinearRegression(fit_intercept=False)
-reg.fit(X,y)
-
-sim_hourly = np.zeros((no_hours,1))
-sim_daily = np.zeros((no_days,1))
-
-for i in range(0,no_hours):
-    
-    s = hourly.loc[i,:'WCMA'].values
-    s = s.reshape((1,len(s)))
-    sim_hourly[i] = reg.predict(s)
-
-for i in range(0,no_days):
-    
-    s = daily.loc[i,:'WCMA'].values
-    s = s.reshape((1,len(s)))
-    sim_daily[i] = reg.predict(s)
-
-SD = pd.DataFrame(sim_daily)
-SD.columns = ['NEISO']
-SD.to_excel('NEISO/weighted_daily_prices.xlsx')
-
-SH = pd.DataFrame(sim_hourly)
-SH.columns = ['NEISO']
-SH.to_excel('NEISO/weighted_hourly_prices.xlsx')
+##########################################################
+##            Weight by zone and bias correct
+##########################################################
+#
+##simulated prices
+#df_prices = pd.read_csv('NEISO/prices_2010_2011.csv',header=0)
+#num_days = int(len(df_prices)/24)
+#
+##regression
+#X = df_prices.loc[:,:'WCMA']
+#y = df_prices.loc[:,'ICE']
+#reg = linear_model.LinearRegression(fit_intercept=False)
+#reg.fit(X,y)
+#
+#sim_hourly = np.zeros((no_hours,1))
+#sim_daily = np.zeros((no_days,1))
+#
+#for i in range(0,no_hours):
+#    
+#    s = hourly.loc[i,:'WCMA'].values
+#    s = s.reshape((1,len(s)))
+#    sim_hourly[i] = reg.predict(s)
+#
+#for i in range(0,no_days):
+#    
+#    s = daily.loc[i,:'WCMA'].values
+#    s = s.reshape((1,len(s)))
+#    sim_daily[i] = reg.predict(s)
+#
+#SD = pd.DataFrame(sim_daily)
+#SD.columns = ['NEISO']
+#SD.to_excel('NEISO/weighted_daily_prices.xlsx')
+#
+#SH = pd.DataFrame(sim_hourly)
+#SH.columns = ['NEISO']
+#SH.to_excel('NEISO/weighted_hourly_prices.xlsx')
