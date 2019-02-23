@@ -27,5 +27,5 @@ NEISO_wrapper.sim(days)
 #                    WHOLESALE ELECTRICITY PRICES
 # 
 
-# NOTE: price calculation first needs historical NEISO prices to be loaded.
+## NOTE: price calculation first needs historical NEISO prices to be loaded.
 import NEISO_price_calculation

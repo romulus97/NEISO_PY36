@@ -161,8 +161,12 @@ model.HorizonMustRun = Param(model.zones*model.hh_periods,within=NonNegativeReal
 model.SimReserves = Param(model.SH_periods, within=NonNegativeReals)
 model.HorizonReserves = Param(model.hh_periods, within=NonNegativeReals,mutable=True)
 
-#Exchange - dispatchable
+##Variable resources over simulation period
+model.SimWind = Param(model.zones, model.SH_periods, within=NonNegativeReals)
+model.SimSolar = Param(model.zones, model.SH_periods, within=NonNegativeReals)
 
+
+#Exports
 model.SimCT_exports_NY = Param(model.SH_periods, within=NonNegativeReals)
 model.SimWCMA_exports_NY = Param(model.SH_periods, within=NonNegativeReals)
 model.SimVT_exports_NY = Param(model.SH_periods, within=NonNegativeReals)
@@ -281,21 +285,6 @@ model.solar = Var(model.zones,model.HH_periods,within=NonNegativeReals)
 model.wind = Var(model.zones,model.HH_periods,within=NonNegativeReals)
 
 #Minimum flows for import paths and hydropower
-
-model.SimNY_imports_CT_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimNY_imports_WCMA_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimNY_imports_VT_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimHQ_imports_VT_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimHQ_imports_WCMA_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimNB_imports_ME_minflow= Param(model.SH_periods, within=NonNegativeReals)
-
-model.SimME_hydro_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimVT_hydro_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimRI_hydro_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimNH_hydro_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimCT_hydro_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimWCMA_hydro_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimNEMA_hydro_minflow = Param(model.SH_periods, within=NonNegativeReals)
 
 model.NY_CT_I_minflow = Var(model.HH_periods,within=NonNegativeReals)
 model.NY_WCMA_I_minflow = Var(model.HH_periods,within=NonNegativeReals)
@@ -537,6 +526,16 @@ def Zone8_Balance(model,i):
     exports = sum(model.flow['WCMA',k,i] for k in model.sinks) + model.HorizonWCMA_exports_NY[i]        
     return s1 + s2 + s3 + other + imports - exports >= model.HorizonDemand['WCMA',i]
 model.Bal8Constraint= Constraint(model.hh_periods,rule=Zone8_Balance)
+
+#Max capacity constraints on variable resources 
+def SolarC(model,z,i):
+    return model.solar[z,i] <= model.HorizonSolar[z,i]
+model.SolarConstraint= Constraint(model.zones,model.hh_periods,rule=SolarC)
+
+def WindC(model,z,i):
+    return model.wind[z,i] <= model.HorizonWind[z,i]
+model.WindConstraint= Constraint(model.zones,model.hh_periods,rule=WindC)
+
 
 # Daily production limits on dispatchable hydropower
 def HydroC1(model,i):

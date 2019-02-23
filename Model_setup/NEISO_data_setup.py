@@ -49,6 +49,20 @@ def setup(year):
     #california imports hourly minimum flows
     df_NEISO_import_mins = pd.read_csv('Path_setup/NEISO_path_mins.csv', header=0)
     
+    ##time series of wind generation for each zone
+    df_wind = pd.read_csv('../Stochastic_engine/Synthetic_wind_power/wind_power_sim.csv',header=0)
+    df_wind = df_wind.loc[:,'NEISO']
+    df_wind = df_wind.loc[year*8760:year*8760+8759]
+    df_wind = df_wind.reset_index()
+    wind_caps = pd.read_excel('NEISO_data_file/wind_caps.xlsx')
+    
+     
+    ##time series solar for each zone
+    df_solar = pd.read_csv('../Stochastic_engine/Synthetic_solar_power/solar_power_sim.csv',header=0)   
+    df_solar = df_solar.loc[year*8760:year*8760+8759]
+    df_solar = df_solar.reset_index()
+    solar_caps = pd.read_excel('NEISO_data_file/solar_caps.xlsx')
+    
     #california hydro hourly minimum flows
     df_NEISO_hydro_mins = pd.read_csv('Hydro_setup/NEISO_hydro_mins.csv', header=0)
     
@@ -307,10 +321,14 @@ def setup(year):
         
         # times series data
         # zonal (hourly)
-        f.write('param:' + '\t' + 'SimDemand' + '\t' + 'SimMustRun:=' + '\n')      
+        f.write('param:' + '\t' + 'SimDemand' + '\t' + 'SimWind' \
+        + '\t' + 'SimSolar' + '\t' + 'SimMustRun:=' + '\n')      
         for z in zones:
+            sz = solar_caps.loc[0,z]
+            wz = wind_caps.loc[0,z]
             for h in range(0,len(df_load)): 
                 f.write(z + '\t' + str(h+1) + '\t' + str(df_load.loc[h,z])\
+                + '\t' + str(df_wind.loc[h,'NEISO']*wz) + '\t' + str(df_solar.loc[h,'NEISO']*sz)\
                 + '\t' + str(df_total_must_run.loc[h,z]) + '\n')
         f.write(';\n\n')
         

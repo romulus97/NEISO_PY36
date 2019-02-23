@@ -49,7 +49,10 @@ def sim(days):
             
             for i in K:
                 instance.HorizonDemand[z,i] = instance.SimDemand[z,(day-1)*24+i]
+                instance.HorizonWind[z,i] = instance.SimWind[z,(day-1)*24+i]
+                instance.HorizonSolar[z,i] = instance.SimSolar[z,(day-1)*24+i]
                 instance.HorizonMustRun[z,i] = instance.SimMustRun[z,(day-1)*24+i]
+              
         
         for d in range(1,D+1):
             instance.HorizonNY_imports_CT[d] = instance.SimNY_imports_CT[day-1+d]
@@ -90,7 +93,8 @@ def sim(days):
             instance.HorizonRI_hydro_minflow[i] = instance.SimRI_hydro_minflow[(day-1)*24+i] 
             instance.HorizonVT_hydro_minflow[i] = instance.SimVT_hydro_minflow[(day-1)*24+i] 
             instance.HorizonWCMA_hydro_minflow[i] = instance.SimWCMA_hydro_minflow[(day-1)*24+i]             
-                         
+         
+         
         NEISO_result = opt.solve(instance)
         instance.solutions.load_from(NEISO_result)   
      
